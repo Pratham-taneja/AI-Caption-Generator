@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Upload Example</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Catchy Caption Generator</h1>
+    
+    <form id="upload-form" action="{{ url_for('upload') }}" enctype="multipart/form-data" method="POST">
+      <label for="image-upload">Select an image:</label>
+      <label class="custom-file-upload">
+        <input type="file" id="image-upload" name="image-upload" accept="image/*" required>
+        Choose File
+      </label>
+      <br><br>
+      <input type="submit" value="Upload">
+    </form>
+    
+    <div id="uploaded-image">
+      {% if image_url %}
+        <div>
+          <img src="{{ image_url }}" alt="Uploaded Image" width="400" height="400">
+        </div>
+      {% endif %}
+      <div>
+        <h3>Generated Captions</h3>
+        <p>{{final_caption}}</p>
+      </div>
+    </div>
+  </div>
+  
+  
+  <script>
+    document.getElementById('upload-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var fileInput = document.getElementById('image-upload');
+      var file = fileInput.files[0];
+      var formData = new FormData();
+      formData.append('image-upload', file);
+      
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        console.log("------",data);
+        document.getElementById('uploaded-image').innerHTML = '<img src="' + data.split("----")[0] + '" alt="Uploaded Image"><h3>Generated Captions</h3><p>'+data.split("----")[1]+'</p>';
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+  </script>
+</body>
+</html>
